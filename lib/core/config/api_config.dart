@@ -1,24 +1,30 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Central API configuration.
 ///
-/// The website reads `VITE_API_URL` (e.g. `https://api.example.com/api`, no
-/// trailing slash). The app reads the same value at build time:
+/// The app reads `API_URL` from `.env`, or from a build-time define:
 ///
 ///   flutter run --dart-define=API_URL=https://your-backend.example.com/api
-///   flutter build apk --release --dart-define=API_URL=https://your-backend.example.com/api
 ///
-/// The default below is the Android-emulator loopback of the website's default
-/// (`http://localhost:5000/api`). It only works on an emulator, so ALWAYS pass
-/// API_URL for physical devices and release builds.
+/// A build-time define takes precedence over `.env`. The fallback below is the
+/// Android-emulator loopback and only works on an emulator.
 class ApiConfig {
   ApiConfig._();
 
-  static const String _raw = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'http://10.0.2.2:5000/api',
-  );
+  static const _fallback = 'http://10.0.2.2:5000/api';
 
-  static String get baseUrl =>
-      _raw.endsWith('/') ? _raw.substring(0, _raw.length - 1) : _raw;
+  static String get _raw {
+    const defined = String.fromEnvironment('API_URL');
+    if (defined.isNotEmpty) return defined;
+    final loaded = dotenv.env['API_URL'];
+    if (loaded != null && loaded.isNotEmpty) return loaded;
+    return _fallback;
+  }
+
+  static String get baseUrl {
+    final raw = _raw;
+    return raw.endsWith('/') ? raw.substring(0, raw.length - 1) : raw;
+  }
 
   /// JSON requests (contact form, status lookup, config).
   static const Duration jsonTimeout = Duration(seconds: 30);

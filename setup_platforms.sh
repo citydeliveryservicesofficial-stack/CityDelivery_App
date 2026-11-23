@@ -57,4 +57,4 @@ print('Platform files patched.')
 PY
 
 dart run flutter_launcher_icons
-echo "Done. Run:  flutter run --dart-define=API_URL=https://YOUR-BACKEND/api"
+echo "Done. Copy .env.example to .env, then: flutter run"

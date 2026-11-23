@@ -1,30 +1,46 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Mirrors `src/utils/config.js` and `src/utils/rider.js` of the website.
 class Site {
   Site._();
 
   static const String name = 'City Delivery Services';
 
-  // Same defaults as the website's SITE config (VITE_* env vars override them there).
-  static const String email = String.fromEnvironment(
-    'CONTACT_EMAIL',
-    defaultValue: 'citydeliveryservicesofficial@gmail.com',
-  );
-  static const String phone = String.fromEnvironment(
-    'CONTACT_PHONE',
-    defaultValue: '8189800888',
-  );
-  static const String address = String.fromEnvironment(
-    'BUSINESS_ADDRESS',
-    defaultValue: 'Head office: No. 7, Thendral Nagar, Sathuvachari, Vellore, 632009 — Above Citywash Building',
-  );
+  static const _defineContactEmail = String.fromEnvironment('CONTACT_EMAIL');
+  static const _defineContactPhone = String.fromEnvironment('CONTACT_PHONE');
+  static const _defineBusinessAddress = String.fromEnvironment('BUSINESS_ADDRESS');
+  static const _defineSocialInstagram = String.fromEnvironment('SOCIAL_INSTAGRAM');
+  static const _defineSocialFacebook = String.fromEnvironment('SOCIAL_FACEBOOK');
+  static const _defineSocialX = String.fromEnvironment('SOCIAL_X');
+  static const _defineSocialWhatsapp = String.fromEnvironment('SOCIAL_WHATSAPP');
+
+  static String _env(String defined, String key, [String fallback = '']) {
+    if (defined.isNotEmpty) return defined;
+    final loaded = dotenv.env[key];
+    if (loaded != null && loaded.isNotEmpty) return loaded;
+    return fallback;
+  }
+
+  static String get email => _env(
+        _defineContactEmail,
+        'CONTACT_EMAIL',
+        'citydeliveryservicesofficial@gmail.com',
+      );
+  static String get phone =>
+      _env(_defineContactPhone, 'CONTACT_PHONE', '8189800888');
+  static String get address => _env(
+        _defineBusinessAddress,
+        'BUSINESS_ADDRESS',
+        'Head office: No. 7, Thendral Nagar, Sathuvachari, Vellore, 632009 — Above Citywash Building',
+      );
 
   /// Empty values are hidden in the UI, exactly like the website.
-  static const Map<String, String> social = {
-    'Instagram': String.fromEnvironment('SOCIAL_INSTAGRAM'),
-    'Facebook': String.fromEnvironment('SOCIAL_FACEBOOK'),
-    'X': String.fromEnvironment('SOCIAL_X'),
-    'WhatsApp': String.fromEnvironment('SOCIAL_WHATSAPP'),
-  };
+  static Map<String, String> get social => {
+        'Instagram': _env(_defineSocialInstagram, 'SOCIAL_INSTAGRAM'),
+        'Facebook': _env(_defineSocialFacebook, 'SOCIAL_FACEBOOK'),
+        'X': _env(_defineSocialX, 'SOCIAL_X'),
+        'WhatsApp': _env(_defineSocialWhatsapp, 'SOCIAL_WHATSAPP'),
+      };
 
   static const String websiteUrl = 'https://www.citydeliveryservices.com';
 }

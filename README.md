@@ -10,20 +10,22 @@ backend as the website — no new endpoints, no separate database, no dummy data
 ## Run it
 
 ```bash
-bash setup_platforms.sh          # once: creates android/ + ios/, adds permissions, generates launcher icons
-flutter run --dart-define=API_URL=https://YOUR-BACKEND/api          # same value as VITE_API_URL
+bash setup_platforms.sh
+cp .env.example .env
+flutter run
 ```
-`API_URL` defaults to `http://10.0.2.2:5000/api` (Android emulator → your PC's localhost:5000). For a physical phone use your
-PC's LAN IP or the deployed URL. Optional overrides (same as the website's VITE_* vars): `CONTACT_EMAIL`, `CONTACT_PHONE`,
-`BUSINESS_ADDRESS`, `SOCIAL_INSTAGRAM`, `SOCIAL_FACEBOOK`, `SOCIAL_X`, `SOCIAL_WHATSAPP`.
+The app loads `.env` at startup. `API_URL` is the deployed API (`https://city-delivery-be.vercel.app/api`) or your local
+backend. The fallback is `http://10.0.2.2:5000/api`; for a physical phone use your PC's LAN IP or the deployed URL.
+After changing `.env`, stop the app and run `flutter run` again so the bundled asset is rebuilt. Hot reload/hot restart is not
+enough. Build-time `--dart-define` values still override `.env`.
 
 ## Build APK / AAB
 1. Create a keystore: `keytool -genkey -v -keystore ~/cds-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
 2. Add `android/key.properties` (`storePassword`, `keyPassword`, `keyAlias=upload`, `storeFile=/path/cds-upload.jks`) and wire it
    into `android/app/build.gradle(.kts)` `signingConfigs.release` — see https://docs.flutter.dev/deployment/android#sign-the-app
-3. `flutter build apk --release --dart-define=API_URL=https://YOUR-BACKEND/api`
-4. `flutter build appbundle --release --dart-define=API_URL=https://YOUR-BACKEND/api` (Play Store)
-5. iOS: open `ios/Runner.xcworkspace`, set your Team/Bundle ID, then `flutter build ipa --dart-define=API_URL=...`
+3. `flutter build apk --release`
+4. `flutter build appbundle --release` (Play Store)
+5. iOS: open `ios/Runner.xcworkspace`, set your Team/Bundle ID, then `flutter build ipa --release`
 
 Release builds must use **https** (Android release and iOS block cleartext).
 
