@@ -53,7 +53,7 @@ class AppBottomNav extends StatelessWidget {
   static const _creamDeep = Color(0xFFFFEDA8);
   static const _inactive = Color(0xFF8B7A33);
 
-  // Layout: [ rider lane 46 ][ 16 headroom for raised button ][ pill 72 ]
+  // The bike floats above the bar without reserving white space behind it.
   static const double _riderLane = 46;
   static const double _headroom = 16;
   static const double _pillHeight = 72;
@@ -83,12 +83,12 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).padding.bottom;
-    const pillTop = _riderLane + _headroom;
+    const riderFloatHeight = _riderLane + _headroom;
     return Container(
       color: Colors.transparent,
       padding: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottom),
       child: SizedBox(
-        height: pillTop + _pillHeight,
+        height: _headroom + _pillHeight,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -96,7 +96,7 @@ class AppBottomNav extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              top: pillTop,
+              top: 0,
               bottom: 0,
               child: Container(
                 decoration: BoxDecoration(
@@ -138,19 +138,19 @@ class AppBottomNav extends StatelessWidget {
                 ),
               ),
             ),
-            // ---- delivery rider, wheels touch the top edge of the pill
+            // ---- delivery rider floats above the pill, wheels touch its top edge
             const Positioned(
               left: 14,
               right: 14,
-              top: 0,
-              height: pillTop,
+              top: -riderFloatHeight,
+              height: riderFloatHeight,
               child: IgnorePointer(child: _DeliveryRiderLane()),
             ),
             // ---- items
             Positioned(
               left: 0,
               right: 0,
-              top: _riderLane,
+              top: 0,
               bottom: 0,
               child: Row(
                 children: [

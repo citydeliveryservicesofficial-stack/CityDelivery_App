@@ -54,7 +54,7 @@ class _SitePageState extends State<SitePage> {
         children: [
           ListView(
             controller: _controller,
-            padding: EdgeInsets.zero,
+            padding: EdgeInsets.only(bottom: 96 + bottom),
             keyboardDismissBehavior: widget.dismissKeyboardOnDrag
                 ? ScrollViewKeyboardDismissBehavior.onDrag
                 : ScrollViewKeyboardDismissBehavior.manual,
@@ -72,12 +72,17 @@ class _SitePageState extends State<SitePage> {
           ),
           Positioned(
             right: 12,
-            bottom: 12 + bottom,
+            bottom: 100 + bottom,
             child: const WhatsAppFloat(),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AppBottomNav(route: widget.route),
           ),
         ],
       ),
-      bottomNavigationBar: AppBottomNav(route: widget.route),
     );
   }
 }
