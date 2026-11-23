@@ -5,6 +5,7 @@ class Site {
   Site._();
 
   static const String name = 'City Delivery Services';
+  static const String serviceCity = 'Vellore';
 
   static const _defineContactEmail = String.fromEnvironment('CONTACT_EMAIL');
   static const _defineContactPhone = String.fromEnvironment('CONTACT_PHONE');

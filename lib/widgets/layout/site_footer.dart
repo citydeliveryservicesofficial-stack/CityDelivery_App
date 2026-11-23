@@ -161,6 +161,34 @@ class SiteFooter extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 Reveal(
+                  delay: const Duration(milliseconds: 130),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _FooterHeading('City where we serve'),
+                      const SizedBox(height: 18),
+                      Row(
+                        children: [
+                          const Icon(
+                            LucideIcons.mapPin,
+                            size: 18,
+                            color: AppColors.yellow,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            Site.serviceCity,
+                            style: AppText.body(
+                              size: 15,
+                              color: Colors.white.withValues(alpha: 0.75),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40),
+                Reveal(
                   delay: const Duration(milliseconds: 160),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
