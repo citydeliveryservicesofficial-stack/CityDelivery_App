@@ -10,6 +10,7 @@ import '../../widgets/common/brand_button.dart';
 import '../../widgets/common/cards.dart';
 import '../../widgets/common/reveal.dart';
 import '../../widgets/common/section_widgets.dart';
+import '../../widgets/layout/auto_marquee.dart';
 import '../../widgets/layout/navigation.dart';
 import '../../widgets/layout/site_page.dart';
 
@@ -41,36 +42,43 @@ const _showcase = [
     LucideIcons.package,
     'Parcel & document delivery',
     'Local pickups and drop-offs coordinated from your area.',
+    'assets/images/gallery/gal1.webp',
   ),
   (
     LucideIcons.bike,
     'Bike rider network',
     'Arrange riders for quick, last-mile local deliveries.',
+    'assets/images/gallery/gal7.webp',
   ),
   (
     LucideIcons.truck,
     'Vehicle capacity',
     'Bikes, cars, lorries or other vehicles you can arrange.',
+    'assets/images/gallery/gal8.webp',
   ),
   (
     LucideIcons.store,
     'Local coordination hub',
     'A shop or office base to manage orders and customers.',
+    'assets/images/gallery/gal2.webp',
   ),
   (
     LucideIcons.map,
     'Area coverage',
     'Grow delivery coverage across your city and district.',
+    'assets/images/gallery/gal3.webp',
   ),
   (
     LucideIcons.users,
     'Team & riders',
     'Organise people and day-to-day local operations.',
+    'assets/images/gallery/gal4.webp',
   ),
   (
     LucideIcons.messageCircle,
     'Customer support',
     'Support customers in your area with clear communication.',
+    'assets/images/gallery/gal5.webp',
   ),
 ];
 
@@ -339,25 +347,8 @@ class BecomeFranchiseScreen extends StatelessWidget {
                       'A glimpse of the day-to-day work franchise partners discuss with our team. Exact scope is confirmed in a written agreement.',
                 ),
                 const SizedBox(height: 32),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: Image.asset(
-                    'assets/images/gallery/gal7.webp',
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    semanticLabel: 'Delivery partner supporting local deliveries',
-                  ),
-                ),
+                const _ShowcaseMarquee(),
                 const SizedBox(height: 24),
-                for (final item in _showcase) ...[
-                  _InfoCard(
-                    icon: item.$1,
-                    title: item.$2,
-                    text: item.$3,
-                  ),
-                  const SizedBox(height: 14),
-                ],
-                const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -747,6 +738,154 @@ class _InfoCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ShowcaseMarquee extends StatelessWidget {
+  const _ShowcaseMarquee();
+
+  @override
+  Widget build(BuildContext context) {
+    final compact = MediaQuery.of(context).size.width < 600;
+    final cardWidth = compact ? 220.0 : 280.0;
+    final cardHeight = compact ? 280.0 : 340.0;
+    return Stack(
+      children: [
+        AutoMarquee(
+          pixelsPerSecond: 38,
+          interactive: true,
+          copyBuilder: (copy) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final item in _showcase) ...[
+                _ShowcaseCard(
+                  icon: item.$1,
+                  title: item.$2,
+                  text: item.$3,
+                  image: item.$4,
+                  width: cardWidth,
+                  height: cardHeight,
+                ),
+                const SizedBox(width: 16),
+              ],
+            ],
+          ),
+        ),
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Colors.white,
+                    Colors.transparent,
+                    Colors.transparent,
+                    Colors.white,
+                  ],
+                  stops: [0, 0.08, 0.92, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ShowcaseCard extends StatelessWidget {
+  const _ShowcaseCard({
+    required this.icon,
+    required this.title,
+    required this.text,
+    required this.image,
+    required this.width,
+    required this.height,
+  });
+
+  final IconData icon;
+  final String title;
+  final String text;
+  final String image;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: AppShadows.lift,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(image, fit: BoxFit.cover),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x00111713),
+                  Color(0x66111713),
+                  Color(0xE6111713),
+                ],
+                stops: [0, 0.35, 1],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            top: 16,
+            child: Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.yellow,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: AppShadows.soft,
+              ),
+              child: Icon(icon, size: 22, color: AppColors.dark),
+            ),
+          ),
+          Positioned(
+            left: 18,
+            right: 18,
+            bottom: 18,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppText.display(
+                    size: 18,
+                    height: 1.2,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  text,
+                  style: AppText.body(
+                    size: 13,
+                    height: 1.5,
+                    color: const Color(0xD9FFFFFF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
