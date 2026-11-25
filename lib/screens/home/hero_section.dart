@@ -274,6 +274,7 @@ class _HeroSectionState extends State<HeroSection>
                       _Chip(LucideIcons.store, 'Groceries'),
                       _Chip(LucideIcons.heartHandshake, 'Medicines'),
                       _Chip(LucideIcons.send, 'Gifts'),
+                      _Chip(LucideIcons.fileText, 'Documents'),
                     ],
                   ),
                 ),

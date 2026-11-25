@@ -10,6 +10,7 @@ const _items = [
   (LucideIcons.store, 'Groceries & Daily Needs'),
   (LucideIcons.heartHandshake, 'Medicines & Health'),
   (LucideIcons.send, 'Gifts & Surprises'),
+  (LucideIcons.fileText, 'Documents Delivery'),
   (LucideIcons.bike, 'Shoes & Fashion'),
   (LucideIcons.zap, 'Electronics & Gadgets'),
   (LucideIcons.shieldCheck, 'Any Store, Any Product'),

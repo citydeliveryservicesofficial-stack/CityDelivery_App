@@ -54,6 +54,7 @@ const List<String> kCategories = [
   'Health & Beauty',
   'Books & Stationery',
   'Gifts',
+  'Documents',
   'Other',
 ];
 
