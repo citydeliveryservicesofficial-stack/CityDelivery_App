@@ -70,15 +70,27 @@ class AppBottomNav extends StatelessWidget {
           primary: false,
         ),
         (
+          route: Routes.becomeRider,
+          label: 'Rider',
+          icon: LucideIcons.bike,
+          primary: false,
+        ),
+        (
           route: Routes.request,
           label: 'Request',
           icon: LucideIcons.clipboardList,
           primary: true,
         ),
         (
-          route: Routes.becomeRider,
-          label: 'Partner',
+          route: Routes.becomeFranchise,
+          label: 'Franchise',
           icon: LucideIcons.handshake,
+          primary: false,
+        ),
+        (
+          route: Routes.franchiseStatus,
+          label: 'Status',
+          icon: LucideIcons.clipboardCheck,
           primary: false,
         ),
       ];
@@ -163,8 +175,11 @@ class AppBottomNav extends StatelessWidget {
                       label: d.label,
                       active: _isActive(route, d.route),
                       primary: d.primary,
-                      onTap: () =>
-                          AppNav.goTop(context, d.route, current: route),
+                      onTap: () => AppNav.goTop(
+                        context,
+                        _targetRoute(d.route, route),
+                        current: route,
+                      ),
                     ),
                 ],
               ),
@@ -175,14 +190,28 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 
+  static String _targetRoute(String destination, String current) {
+    if (destination != Routes.franchiseStatus) return destination;
+    if (current == Routes.becomeRider ||
+        current == Routes.riderRegister ||
+        current == Routes.riderStatus) {
+      return Routes.riderStatus;
+    }
+    return Routes.franchiseStatus;
+  }
+
   static bool _isActive(String current, String destination) {
     if (destination == Routes.becomeRider) {
       return current == Routes.becomeRider ||
-          current == Routes.riderRegister ||
-          current == Routes.riderStatus ||
-          current == Routes.becomeFranchise ||
-          current == Routes.franchiseRegister ||
-          current == Routes.franchiseStatus;
+          current == Routes.riderRegister;
+    }
+    if (destination == Routes.becomeFranchise) {
+      return current == Routes.becomeFranchise ||
+          current == Routes.franchiseRegister;
+    }
+    if (destination == Routes.franchiseStatus) {
+      return current == Routes.franchiseStatus ||
+          current == Routes.riderStatus;
     }
     return current == destination;
   }
