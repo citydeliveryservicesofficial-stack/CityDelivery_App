@@ -20,6 +20,9 @@ class Routes {
   static const becomeRider = '/become-a-rider';
   static const riderRegister = '/rider/register';
   static const riderStatus = '/rider/status';
+  static const becomeFranchise = '/become-a-franchise';
+  static const franchiseRegister = '/franchise/register';
+  static const franchiseStatus = '/franchise/status';
   static String gallery(String slug) => '/gallery/$slug';
 }
 
@@ -176,7 +179,10 @@ class AppBottomNav extends StatelessWidget {
     if (destination == Routes.becomeRider) {
       return current == Routes.becomeRider ||
           current == Routes.riderRegister ||
-          current == Routes.riderStatus;
+          current == Routes.riderStatus ||
+          current == Routes.becomeFranchise ||
+          current == Routes.franchiseRegister ||
+          current == Routes.franchiseStatus;
     }
     return current == destination;
   }

@@ -7,6 +7,7 @@ import 'data/services/api_client.dart';
 import 'data/services/api_service.dart';
 import 'data/services/draft_storage.dart';
 import 'providers/contact_provider.dart';
+import 'providers/franchise_provider.dart';
 import 'providers/request_form_provider.dart';
 import 'providers/rider_application_provider.dart';
 import 'providers/rider_status_provider.dart';
@@ -14,6 +15,9 @@ import 'screens/about_screen.dart';
 import 'screens/contact_screen.dart';
 import 'screens/gallery_detail_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/franchise/become_franchise_screen.dart';
+import 'screens/franchise/franchise_register_screen.dart';
+import 'screens/franchise/franchise_status_screen.dart';
 import 'screens/how_it_works_screen.dart';
 import 'screens/legal/privacy_screen.dart';
 import 'screens/legal/prohibited_items_screen.dart';
@@ -55,6 +59,12 @@ class CityDeliveryApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (c) => RiderStatusProvider(c.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (c) => FranchiseProvider(
+            c.read<ApiService>(),
+            c.read<DraftStorage>(),
+          ),
         ),
       ],
       child: MaterialApp(
@@ -106,6 +116,9 @@ class CityDeliveryApp extends StatelessWidget {
       Routes.becomeRider => const BecomeRiderScreen(),
       Routes.riderRegister => const RiderRegisterScreen(),
       Routes.riderStatus => const RiderStatusScreen(),
+      Routes.becomeFranchise => const BecomeFranchiseScreen(),
+      Routes.franchiseRegister => const FranchiseRegisterScreen(),
+      Routes.franchiseStatus => const FranchiseStatusScreen(),
       _ => const NotFoundScreen(),
     };
     return _fade(page, s);

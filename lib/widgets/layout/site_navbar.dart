@@ -28,11 +28,16 @@ class _SiteNavbarState extends State<SiteNavbar> {
     AppNav.goTop(context, route, current: widget.route);
   }
 
+  bool get _partnerActive =>
+      widget.route == Routes.becomeFranchise ||
+      widget.route.startsWith('/franchise/');
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final showCtas = width >= 640;
     final showLinks = width >= 1024;
+    final showFranchiseCta = width >= 1280;
     final top = MediaQuery.of(context).padding.top;
 
     final bar = Container(
@@ -137,6 +142,45 @@ class _SiteNavbarState extends State<SiteNavbar> {
                 ),
               ),
             ),
+            if (showFranchiseCta) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _go(Routes.becomeFranchise),
+                child: Container(
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  decoration: BoxDecoration(
+                    color: AppColors.green,
+                    borderRadius: BorderRadius.circular(999),
+                    boxShadow: AppShadows.soft,
+                    border: Border.all(
+                      color: _partnerActive
+                          ? AppColors.dark
+                          : AppColors.greenHover,
+                      width: _partnerActive ? 2 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        LucideIcons.handshake,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Become a Franchise',
+                        style: AppText.body(
+                          size: 14,
+                          weight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(width: 8),
             BrandButton(
               label: 'Request a Service',
@@ -283,6 +327,44 @@ class _SiteNavbarState extends State<SiteNavbar> {
                     LucideIcons.arrowRight,
                     size: 17,
                     color: AppColors.dark,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => _go(Routes.becomeFranchise),
+            child: Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(minHeight: 56),
+              decoration: BoxDecoration(
+                color: _partnerActive ? AppColors.greenHover : AppColors.green,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: AppShadows.soft,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    LucideIcons.handshake,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Become a Franchise',
+                    style: AppText.body(
+                      size: 16,
+                      weight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    LucideIcons.arrowRight,
+                    size: 17,
+                    color: Colors.white,
                   ),
                 ],
               ),

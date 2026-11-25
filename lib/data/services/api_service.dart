@@ -1,4 +1,5 @@
 import '../models/api_models.dart';
+import '../models/franchise_models.dart';
 import '../models/upload_file.dart';
 import 'api_client.dart';
 
@@ -52,5 +53,45 @@ class ApiService {
       'applicationId': applicationId,
     });
     return RiderStatusResult.fromResponse(res);
+  }
+
+  Future<FranchiseConfig> getFranchiseConfig() async =>
+      FranchiseConfig.fromResponse(await _client.getJson('/franchises/config'));
+
+  Future<FranchiseApplicationResult> submitFranchiseApplication({
+    required List<MapEntry<String, String>> fields,
+    required List<MapEntry<String, UploadFile>> files,
+  }) async {
+    final res = await _client.postMultipart(
+      '/franchises/register',
+      fields: fields,
+      files: files,
+    );
+    return FranchiseApplicationResult.fromResponse(res);
+  }
+
+  Future<FranchiseStatusResult> checkFranchiseStatus(String applicationId) async {
+    final res = await _client.postJson('/franchises/status', {
+      'applicationId': applicationId,
+    });
+    return FranchiseStatusResult.fromResponse(res);
+  }
+
+  Future<FranchisePaymentOrder> createFranchisePaymentOrder(
+    String applicationId,
+  ) async {
+    final res = await _client.postJson('/franchises/payment/order', {
+      'applicationId': applicationId,
+    });
+    return FranchisePaymentOrder.fromResponse(res);
+  }
+
+  Future<FranchiseStatusResult> verifyFranchisePayment(
+    String applicationId,
+  ) async {
+    final res = await _client.postJson('/franchises/payment/verify', {
+      'applicationId': applicationId,
+    });
+    return FranchiseStatusResult.fromResponse(res);
   }
 }

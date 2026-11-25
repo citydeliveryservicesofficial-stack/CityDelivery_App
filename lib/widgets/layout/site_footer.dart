@@ -21,6 +21,8 @@ class SiteFooter extends StatelessWidget {
     final links = <NavLink>[
       ...kNavLinks.skip(1),
       const NavLink(Routes.becomeRider, 'Become a Rider'),
+      const NavLink(Routes.becomeFranchise, 'Become a Franchise'),
+      const NavLink(Routes.franchiseStatus, 'Franchise Status'),
       const NavLink(Routes.request, 'Request a Service'),
       const NavLink(Routes.prohibited, 'Prohibited Items Policy'),
       const NavLink(Routes.privacy, 'Privacy Policy'),

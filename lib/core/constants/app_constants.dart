@@ -77,6 +77,7 @@ const List<NavLink> kNavLinks = [
   NavLink('/how-it-works', 'How it works'),
   NavLink('/about', 'About'),
   NavLink('/contact', 'Contact'),
+  NavLink('/become-a-franchise', 'Franchise'),
 ];
 
 // ---- Rider constants (src/utils/rider.js) ----
@@ -204,5 +205,64 @@ const List<RiderDocSpec> kRiderDocuments = [
     'additionalDocument2',
     'Additional document 2',
     'Only if requested.',
+  ),
+];
+
+const List<String> kFranchiseStatuses = [
+  'Payment Pending',
+  'Payment Successful',
+  'Under Review',
+  'Approved',
+  'Rejected',
+  'Agreement Pending',
+  'Active Franchise',
+];
+
+const List<String> kFranchiseInvestmentCapacities = [
+  'Below ₹1,00,000',
+  '₹1,00,000 – ₹3,00,000',
+  '₹3,00,000 – ₹5,00,000',
+  'Above ₹5,00,000',
+];
+
+const List<String> kFranchiseVehicleTypes = [
+  'Bike',
+  'Scooter',
+  'Electric Bike',
+  'Car',
+  'Three Wheeler',
+  'Pickup Van',
+  'Delivery Van',
+  'Lorry',
+  'Other',
+];
+
+const Map<String, String> kFranchiseVehicleLabels = {
+  'Bike': 'Number of bikes',
+  'Scooter': 'Number of scooters',
+  'Electric Bike': 'Number of electric bikes',
+  'Car': 'Number of cars',
+  'Three Wheeler': 'Number of three wheelers',
+  'Pickup Van': 'Number of pickup vans',
+  'Delivery Van': 'Number of delivery vans',
+  'Lorry': 'Number of lorries',
+  'Other': 'Number of other vehicles',
+};
+
+const List<({String key, String label, String hint})> kFranchiseDocuments = [
+  (
+    key: 'businessProof',
+    label: 'Business proof (optional)',
+    hint: 'Registration, licence or previous business proof, if available.',
+  ),
+  (
+    key: 'addressProof',
+    label: 'Address proof (optional)',
+    hint: 'Proof for the proposed office or operating area, if available.',
+  ),
+  (
+    key: 'otherProof',
+    label: 'Other supporting document (optional)',
+    hint: 'Anything else you would like our team to review.',
   ),
 ];

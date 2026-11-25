@@ -177,6 +177,7 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.monospace = false,
     this.onSubmitted,
+    this.textAlign = TextAlign.start,
   });
 
   final TextEditingController controller;
@@ -197,6 +198,7 @@ class AppTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool monospace;
   final ValueChanged<String>? onSubmitted;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -225,6 +227,7 @@ class AppTextField extends StatelessWidget {
         autofillHints: autofillHints,
         textCapitalization: textCapitalization,
         inputFormatters: inputFormatters,
+        textAlign: textAlign,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
         style: monospace
