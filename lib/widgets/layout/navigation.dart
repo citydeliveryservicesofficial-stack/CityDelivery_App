@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons_lite/lucide_icons_lite.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -45,21 +47,46 @@ class AppNav {
       Navigator.of(context).pushNamed(route);
 }
 
-/// Floating, yellow-themed bottom navigation with a delivery rider who
-/// keeps riding left and right along the top edge of the bar.
+// ============================================================================
+//  Premium 3D bottom navigation
+// ============================================================================
+//
+//  SYSTEM BUTTON FIX
+//  Phones with the 3-button Android bar (Back / Home / Recents) or a gesture
+//  pill were drawing on top of the nav bar, because the bottom inset was lost
+//  (MediaQuery padding is often consumed by a parent Scaffold / SafeArea).
+//  We now read the *raw* window inset straight from the platform view and use
+//  the largest of every available source, so the bar always sits above the
+//  system buttons.
+//
+//  Also add this once in main() for consistent behaviour on all phones:
+//
+//    WidgetsFlutterBinding.ensureInitialized();
+//    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+//
+//  and place the bar as `bottomNavigationBar:` of your Scaffold (or at the
+//  bottom of a Column) – do NOT wrap it in another SafeArea (it would add the
+//  gap twice).
+// ============================================================================
+
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({super.key, required this.route});
 
   final String route;
 
+  // ---- palette
   static const _cream = Color(0xFFFFF8DC);
   static const _creamDeep = Color(0xFFFFEDA8);
   static const _inactive = Color(0xFF8B7A33);
+  static const _edge = Color(0xFFD9A400); // extruded "side wall" of the bar
+  static const _edgeDeep = Color(0xFFB07F00);
 
-  // The bike floats above the bar without reserving white space behind it.
-  static const double _riderLane = 46;
-  static const double _headroom = 16;
-  static const double _pillHeight = 72;
+  // ---- geometry
+  static const double _pillHeight = 74;
+  static const double _depth = 8; // 3D thickness under the bar
+  static const double _riderFloatHeight = 54;
+  static const double _sideMargin = 16;
+  static const double _minBottomGap = 10;
 
   static const _destinations =
       <({String route, String label, IconData icon, bool primary})>[
@@ -95,78 +122,106 @@ class AppBottomNav extends StatelessWidget {
         ),
       ];
 
+  /// Largest bottom inset from every source, so 3-button / gesture navigation
+  /// bars can never cover the bar.
+  static double _systemBottomInset(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final view = View.of(context);
+    final rawViewPadding = view.viewPadding.bottom / view.devicePixelRatio;
+    final rawSystemGesture =
+        view.systemGestureInsets.bottom / view.devicePixelRatio;
+    var inset = math.max(
+      math.max(mq.padding.bottom, mq.viewPadding.bottom),
+      rawViewPadding,
+    );
+    // Gesture insets can be large on some OEMs; only trust them on Android.
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      inset = math.max(inset, math.min(rawSystemGesture, 48));
+    }
+    return inset;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).padding.bottom;
-    const riderFloatHeight = _riderLane + _headroom;
+    final bottomInset = _systemBottomInset(context);
+
     return Container(
       color: Colors.transparent,
-      padding: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottom),
+      padding: EdgeInsets.fromLTRB(
+        _sideMargin,
+        0,
+        _sideMargin,
+        _minBottomGap + bottomInset,
+      ),
       child: SizedBox(
-        height: _headroom + _pillHeight,
+        height: _pillHeight + _depth,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // ---- the floating pill
+            // ---- soft ground shadow under the whole slab
             Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
+              left: 14,
+              right: 14,
+              bottom: -6,
+              height: 26,
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [_cream, _creamDeep],
-                  ),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    width: 1.4,
-                  ),
+                  borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.yellowDeep.withValues(alpha: 0.45),
-                      blurRadius: 30,
+                      color: AppColors.dark.withValues(alpha: 0.28),
+                      blurRadius: 26,
                       offset: const Offset(0, 14),
                     ),
                     BoxShadow(
-                      color: AppColors.dark.withValues(alpha: 0.14),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
+                      color: AppColors.yellowDeep.withValues(alpha: 0.35),
+                      blurRadius: 30,
+                      spreadRadius: -4,
+                      offset: const Offset(0, 18),
                     ),
                   ],
                 ),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.center,
-                      colors: [
-                        Colors.white.withValues(alpha: 0.65),
-                        Colors.white.withValues(alpha: 0),
-                      ],
-                    ),
+              ),
+            ),
+            // ---- extruded side wall (gives the bar real thickness)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: _depth,
+              height: _pillHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [_edge, _edgeDeep],
                   ),
                 ),
               ),
             ),
-            // ---- delivery rider floats above the pill, wheels touch its top edge
-            const Positioned(
-              left: 14,
-              right: 14,
-              top: -riderFloatHeight,
-              height: riderFloatHeight,
-              child: IgnorePointer(child: _DeliveryRiderLane()),
-            ),
-            // ---- items
+            // ---- bar face
             Positioned(
               left: 0,
               right: 0,
               top: 0,
-              bottom: 0,
+              height: _pillHeight,
+              child: _BarFace(),
+            ),
+            // ---- delivery rider: wheels touch the top edge of the bar
+            const Positioned(
+              left: 18,
+              right: 18,
+              top: -_riderFloatHeight + 2,
+              height: _riderFloatHeight,
+              child: IgnorePointer(child: _DeliveryRiderLane()),
+            ),
+            // ---- items
+            Positioned(
+              left: 4,
+              right: 4,
+              top: 0,
+              height: _pillHeight,
               child: Row(
                 children: [
                   for (final d in _destinations)
@@ -202,8 +257,7 @@ class AppBottomNav extends StatelessWidget {
 
   static bool _isActive(String current, String destination) {
     if (destination == Routes.becomeRider) {
-      return current == Routes.becomeRider ||
-          current == Routes.riderRegister;
+      return current == Routes.becomeRider || current == Routes.riderRegister;
     }
     if (destination == Routes.becomeFranchise) {
       return current == Routes.becomeFranchise ||
@@ -214,6 +268,86 @@ class AppBottomNav extends StatelessWidget {
           current == Routes.riderStatus;
     }
     return current == destination;
+  }
+}
+
+/// The glossy top face of the 3D bar: gradient body, bevelled rim,
+/// specular highlight and an inner bottom shade.
+class _BarFace extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFBEA),
+            AppBottomNav._cream,
+            AppBottomNav._creamDeep,
+          ],
+          stops: [0, 0.45, 1],
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.95),
+          width: 1.6,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.7),
+            blurRadius: 2,
+            offset: const Offset(0, -1),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(31),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // top specular gloss
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: AppBottomNav._pillHeight * 0.5,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.75),
+                      Colors.white.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // inner bottom shade for depth
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 22,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.yellowDeep.withValues(alpha: 0),
+                      AppColors.yellowDeep.withValues(alpha: 0.28),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -767,7 +901,7 @@ class _RiderPainter extends CustomPainter {
 }
 
 // ============================================================================
-//  Nav items
+//  Nav items (3D keys that physically press down)
 // ============================================================================
 
 class _AppBottomNavItem extends StatefulWidget {
@@ -789,19 +923,11 @@ class _AppBottomNavItem extends StatefulWidget {
   State<_AppBottomNavItem> createState() => _AppBottomNavItemState();
 }
 
-class _AppBottomNavItemState extends State<_AppBottomNavItem>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _press = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 120),
-    lowerBound: 0.92,
-    upperBound: 1,
-  )..value = 1;
+class _AppBottomNavItemState extends State<_AppBottomNavItem> {
+  bool _pressed = false;
 
-  @override
-  void dispose() {
-    _press.dispose();
-    super.dispose();
+  void _setPressed(bool v) {
+    if (_pressed != v) setState(() => _pressed = v);
   }
 
   @override
@@ -809,177 +935,260 @@ class _AppBottomNavItemState extends State<_AppBottomNavItem>
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTapDown: (_) => _press.reverse(),
+        onTapDown: (_) => _setPressed(true),
         onTapUp: (_) {
-          _press.forward();
+          _setPressed(false);
+          HapticFeedback.selectionClick();
           widget.onTap();
         },
-        onTapCancel: () => _press.forward(),
-        child: ScaleTransition(
-          scale: _press,
-          child: Semantics(
-            button: true,
-            selected: widget.active,
-            label: widget.label,
-            child: widget.primary ? _primary() : _regular(),
+        onTapCancel: () => _setPressed(false),
+        child: AnimatedScale(
+          scale: _pressed ? 0.92 : 1,
+          duration: const Duration(milliseconds: 110),
+          curve: Curves.easeOut,
+          child: AnimatedSlide(
+            offset: Offset(0, _pressed ? 0.05 : 0),
+            duration: const Duration(milliseconds: 110),
+            curve: Curves.easeOut,
+            child: Semantics(
+              button: true,
+              selected: widget.active,
+              label: widget.label,
+              child: widget.primary ? _primary() : _regular(),
+            ),
           ),
         ),
       ),
     );
   }
 
-  // ------------------------------------------------ raised golden centre button
+  // ------------------------------------------------ raised golden centre orb
   Widget _primary() {
     final active = widget.active;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 62,
-          height: 62,
-          child: Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 62,
-                height: 62,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppBottomNav._cream,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.yellowDeep.withValues(alpha: 0.55),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
+    return Transform.translate(
+      offset: const Offset(0, -9),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 66,
+            height: 62,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                // socket ring (the bezel the orb sits in)
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.white, AppBottomNav._creamDeep],
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFFFE066),
-                      AppColors.yellow,
-                      Color(0xFFF5A800),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.yellowDeep.withValues(alpha: 0.6),
+                        blurRadius: 22,
+                        offset: const Offset(0, 10),
+                      ),
                     ],
                   ),
-                  border: Border.all(color: Colors.white, width: 2),
-                  boxShadow: [
-                    const BoxShadow(
-                      color: Color(0xFFB98600),
-                      offset: Offset(0, 4),
-                    ),
-                    if (active)
-                      BoxShadow(
-                        color: AppColors.green.withValues(alpha: 0.55),
-                        blurRadius: 16,
-                        spreadRadius: 1,
-                      ),
-                  ],
                 ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned(
-                      top: 5,
-                      left: 10,
-                      right: 10,
-                      height: 14,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.white.withValues(alpha: 0.6),
-                              Colors.white.withValues(alpha: 0),
-                            ],
+                // orb: solid extrude edge + glossy gradient face
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const RadialGradient(
+                      center: Alignment(-0.35, -0.5),
+                      radius: 1.05,
+                      colors: [
+                        Color(0xFFFFF0A0),
+                        AppColors.yellow,
+                        Color(0xFFF2A100),
+                      ],
+                      stops: [0, 0.55, 1],
+                    ),
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      const BoxShadow(
+                        color: Color(0xFFB98600),
+                        offset: Offset(0, 5),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 10,
+                        offset: const Offset(0, 9),
+                      ),
+                      if (active)
+                        BoxShadow(
+                          color: AppColors.green.withValues(alpha: 0.6),
+                          blurRadius: 18,
+                          spreadRadius: 1,
+                        ),
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // gloss
+                      Positioned(
+                        top: 4,
+                        left: 10,
+                        right: 10,
+                        height: 16,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withValues(alpha: 0.7),
+                                Colors.white.withValues(alpha: 0),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Icon(widget.icon, size: 24, color: AppColors.dark),
-                  ],
+                      // embossed icon: light edge underneath, dark on top
+                      Transform.translate(
+                        offset: const Offset(0, 1),
+                        child: Icon(
+                          widget.icon,
+                          size: 24,
+                          color: Colors.white.withValues(alpha: 0.65),
+                        ),
+                      ),
+                      Icon(widget.icon, size: 24, color: AppColors.dark),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 1),
-        Text(
-          widget.label,
-          maxLines: 1,
-          style: AppText.body(
-            size: 11,
-            weight: FontWeight.w800,
-            color: AppColors.dark,
+          Text(
+            widget.label,
+            maxLines: 1,
+            style: AppText.body(
+              size: 11,
+              height: 1,
+              weight: FontWeight.w800,
+              color: AppColors.dark,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // ------------------------------------------------ Home / Partner items
   Widget _regular() {
     final active = widget.active;
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeOutCubic,
-          width: active ? 68 : 58,
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(999),
-            gradient: active
-                ? const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF2A2410), AppColors.dark],
-                  )
-                : null,
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                      color: AppColors.dark.withValues(alpha: 0.35),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
+    return Center(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+        width: active ? 66 : 56,
+        height: 56,
+        margin: EdgeInsets.only(bottom: active ? 6 : 0),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: active
+              ? const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF4A4120), Color(0xFF2A2410), AppColors.dark],
+                )
+              : null,
+          border: active
+              ? Border.all(color: Colors.white.withValues(alpha: 0.18))
+              : null,
+          boxShadow: active
+              ? [
+                  // solid extruded edge (3D key)
+                  const BoxShadow(
+                    color: Color(0xFF0A0803),
+                    offset: Offset(0, 4),
+                  ),
+                  BoxShadow(
+                    color: AppColors.dark.withValues(alpha: 0.4),
+                    blurRadius: 14,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (active)
+              Positioned(
+                top: 0,
+                left: 6,
+                right: 6,
+                height: 16,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.22),
+                        Colors.white.withValues(alpha: 0),
+                      ],
                     ),
-                  ]
-                : null,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                size: 21,
-                color: active ? AppColors.yellow : AppBottomNav._inactive,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                widget.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppText.body(
-                  size: 9,
-                  weight: active ? FontWeight.w800 : FontWeight.w700,
-                  color: active ? AppColors.yellow : AppBottomNav._inactive,
+                  ),
                 ),
               ),
-            ],
-          ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedScale(
+                  scale: active ? 1.12 : 1,
+                  duration: const Duration(milliseconds: 280),
+                  curve: Curves.easeOutBack,
+                  child: Icon(
+                    widget.icon,
+                    size: 22,
+                    color: active ? AppColors.yellow : AppBottomNav._inactive,
+                    shadows: active
+                        ? [
+                            Shadow(
+                              color: AppColors.yellow.withValues(alpha: 0.6),
+                              blurRadius: 10,
+                            ),
+                          ]
+                        : [
+                            Shadow(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.body(
+                    size: 9.5,
+                    weight: active ? FontWeight.w800 : FontWeight.w700,
+                    color: active ? AppColors.yellow : AppBottomNav._inactive,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
