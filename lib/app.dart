@@ -13,6 +13,7 @@ import 'providers/request_form_provider.dart';
 import 'providers/request_history_provider.dart';
 import 'providers/request_status_provider.dart';
 import 'providers/rider_application_provider.dart';
+import 'providers/site_config_provider.dart';
 import 'providers/rider_status_provider.dart';
 import 'screens/about_screen.dart';
 import 'screens/contact_screen.dart';
@@ -47,6 +48,9 @@ class CityDeliveryApp extends StatelessWidget {
         ),
         ProxyProvider<ApiClient, ApiService>(
           update: (_, c, __) => ApiService(c),
+        ),
+        ChangeNotifierProvider(
+          create: (c) => SiteConfigProvider(c.read<ApiService>()),
         ),
         Provider<DraftStorage>(create: (_) => DraftStorage()),
         Provider<RequestHistoryStorage>(create: (_) => RequestHistoryStorage()),

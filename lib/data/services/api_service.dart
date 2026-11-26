@@ -58,6 +58,9 @@ class ApiService {
   Future<RiderConfig> getRiderConfig() async =>
       RiderConfig.fromResponse(await _client.getJson('/riders/config'));
 
+  Future<SiteConfigResult> getSiteConfig() async =>
+      SiteConfigResult.fromResponse(await _client.getJson('/site/config'));
+
   /// POST /riders/register (multipart)
   Future<RiderApplicationResult> submitRiderApplication({
     required List<MapEntry<String, String>> fields,

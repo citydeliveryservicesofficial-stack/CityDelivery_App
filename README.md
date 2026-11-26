@@ -52,6 +52,7 @@ Same validation rules, error texts, `submissionKey` idempotency and empty `websi
 - **Drafts:** half-filled request/rider forms are saved on the phone and restored. Aadhaar, PAN, licence, bank/UPI details and
   consents are never saved to disk; files are not saved.
 - `GET /requests/:requestId/status` powers the request status screen from the success CTA, bottom-nav Status and footer. Submitted Request IDs are also saved locally for the "My Requests" history screen (device-only, no login); that screen uses `POST /requests/status/bulk` so the whole list refreshes with one status check.
+- The footer's "City where we serve" text loads from `GET /site/config`, so admin changes made in the website admin panel also appear in the app after it reloads; the build-time `Site.serviceCity` value is the offline fallback.
 - Text values are trimmed before sending (the website sends them raw); PAN/IFSC fields auto-capitalise.
 - Images were converted PNG → WebP (≈2 MB total) for a smaller app; fonts (Sora, Plus Jakarta Sans) load via `google_fonts`
   — download them into `assets/fonts` if you need fully offline first launch.

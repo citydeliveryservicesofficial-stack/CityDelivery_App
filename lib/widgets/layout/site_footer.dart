@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_lite/lucide_icons_lite.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../providers/site_config_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/helpers.dart';
@@ -18,6 +20,7 @@ class SiteFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final serviceCity = context.watch<SiteConfigProvider>().serviceCity;
     final links = <NavLink>[
       ...kNavLinks.skip(1),
       const NavLink(Routes.becomeRider, 'Become a Rider'),
@@ -180,7 +183,7 @@ class SiteFooter extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            Site.serviceCity,
+                            serviceCity,
                             style: AppText.body(
                               size: 15,
                               color: Colors.white.withValues(alpha: 0.75),

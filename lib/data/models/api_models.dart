@@ -177,3 +177,14 @@ class RiderConfig {
     );
   }
 }
+
+class SiteConfigResult {
+  const SiteConfigResult({this.serviceCity = Site.serviceCity});
+
+  final String serviceCity;
+
+  factory SiteConfigResult.fromResponse(Map<String, dynamic> res) {
+    final value = '${_asMap(res['data'])['serviceCity'] ?? ''}'.trim();
+    return SiteConfigResult(serviceCity: value.isEmpty ? Site.serviceCity : value);
+  }
+}
