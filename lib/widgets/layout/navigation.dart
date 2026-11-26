@@ -13,6 +13,8 @@ class Routes {
   Routes._();
   static const home = '/';
   static const request = '/request';
+  static const requestStatus = '/request/status';
+  static const requestHistory = '/request/history';
   static const howItWorks = '/how-it-works';
   static const about = '/about';
   static const contact = '/contact';
@@ -115,7 +117,7 @@ class AppBottomNav extends StatelessWidget {
           primary: false,
         ),
         (
-          route: Routes.franchiseStatus,
+          route: Routes.requestStatus,
           label: 'Status',
           icon: LucideIcons.clipboardCheck,
           primary: false,
@@ -246,13 +248,18 @@ class AppBottomNav extends StatelessWidget {
   }
 
   static String _targetRoute(String destination, String current) {
-    if (destination != Routes.franchiseStatus) return destination;
+    if (destination != Routes.requestStatus) return destination;
     if (current == Routes.becomeRider ||
         current == Routes.riderRegister ||
         current == Routes.riderStatus) {
       return Routes.riderStatus;
     }
-    return Routes.franchiseStatus;
+    if (current == Routes.becomeFranchise ||
+        current == Routes.franchiseRegister ||
+        current == Routes.franchiseStatus) {
+      return Routes.franchiseStatus;
+    }
+    return Routes.requestStatus;
   }
 
   static bool _isActive(String current, String destination) {
@@ -263,8 +270,9 @@ class AppBottomNav extends StatelessWidget {
       return current == Routes.becomeFranchise ||
           current == Routes.franchiseRegister;
     }
-    if (destination == Routes.franchiseStatus) {
-      return current == Routes.franchiseStatus ||
+    if (destination == Routes.requestStatus) {
+      return current == Routes.requestStatus ||
+          current == Routes.franchiseStatus ||
           current == Routes.riderStatus;
     }
     return current == destination;

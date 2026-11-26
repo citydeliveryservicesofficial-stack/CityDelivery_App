@@ -38,6 +38,34 @@ class ProductRequestResult {
   }
 }
 
+/// Response of `GET /requests/:requestId/status` (`response.data`).
+class RequestStatusResult {
+  RequestStatusResult({
+    required this.requestId,
+    required this.status,
+    required this.nextSteps,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  final String requestId;
+  final String status;
+  final String nextSteps;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  factory RequestStatusResult.fromResponse(Map<String, dynamic> res) =>
+      RequestStatusResult.fromJson(_asMap(res['data']));
+
+  factory RequestStatusResult.fromJson(Map<String, dynamic> d) => RequestStatusResult(
+        requestId: '${d['requestId'] ?? ''}',
+        status: '${d['status'] ?? ''}',
+        nextSteps: '${d['nextSteps'] ?? ''}',
+        createdAt: DateTime.tryParse('${d['createdAt'] ?? ''}')?.toLocal(),
+        updatedAt: DateTime.tryParse('${d['updatedAt'] ?? ''}')?.toLocal(),
+      );
+}
+
 /// Response of `POST /riders/register` (the website renders `response.data`).
 class RiderApplicationResult {
   RiderApplicationResult({

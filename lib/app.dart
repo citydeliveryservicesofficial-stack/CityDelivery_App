@@ -6,9 +6,12 @@ import 'core/theme/app_theme.dart';
 import 'data/services/api_client.dart';
 import 'data/services/api_service.dart';
 import 'data/services/draft_storage.dart';
+import 'data/services/request_history_storage.dart';
 import 'providers/contact_provider.dart';
 import 'providers/franchise_provider.dart';
 import 'providers/request_form_provider.dart';
+import 'providers/request_history_provider.dart';
+import 'providers/request_status_provider.dart';
 import 'providers/rider_application_provider.dart';
 import 'providers/rider_status_provider.dart';
 import 'screens/about_screen.dart';
@@ -24,6 +27,8 @@ import 'screens/legal/prohibited_items_screen.dart';
 import 'screens/legal/terms_screen.dart';
 import 'screens/not_found_screen.dart';
 import 'screens/request_screen.dart';
+import 'screens/request_history_screen.dart';
+import 'screens/request_status_screen.dart';
 import 'screens/rider/become_rider_screen.dart';
 import 'screens/rider/rider_register_screen.dart';
 import 'screens/rider/rider_status_screen.dart';
@@ -44,9 +49,22 @@ class CityDeliveryApp extends StatelessWidget {
           update: (_, c, __) => ApiService(c),
         ),
         Provider<DraftStorage>(create: (_) => DraftStorage()),
+        Provider<RequestHistoryStorage>(create: (_) => RequestHistoryStorage()),
         ChangeNotifierProvider(
-          create: (c) =>
-              RequestFormProvider(c.read<ApiService>(), c.read<DraftStorage>()),
+          create: (c) => RequestFormProvider(
+            c.read<ApiService>(),
+            c.read<DraftStorage>(),
+            c.read<RequestHistoryStorage>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (c) => RequestStatusProvider(c.read<ApiService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (c) => RequestHistoryProvider(
+            c.read<ApiService>(),
+            c.read<RequestHistoryStorage>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (c) => ContactProvider(c.read<ApiService>()),
@@ -107,6 +125,8 @@ class CityDeliveryApp extends StatelessWidget {
     final Widget page = switch (name) {
       Routes.home => const HomeScreen(),
       Routes.request => const RequestScreen(),
+      Routes.requestStatus => const RequestStatusScreen(),
+      Routes.requestHistory => const RequestHistoryScreen(),
       Routes.howItWorks => const HowItWorksScreen(),
       Routes.about => const AboutScreen(),
       Routes.contact => const ContactScreen(),

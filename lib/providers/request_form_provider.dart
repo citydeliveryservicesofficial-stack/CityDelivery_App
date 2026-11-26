@@ -8,10 +8,11 @@ import '../data/models/upload_file.dart';
 import '../data/services/api_exception.dart';
 import '../data/services/api_service.dart';
 import '../data/services/draft_storage.dart';
+import '../data/services/request_history_storage.dart';
 
 /// State + validation for the "Request a Service" form (src/pages/RequestProduct.jsx).
 class RequestFormProvider extends ChangeNotifier {
-  RequestFormProvider(this._api, this._drafts) {
+  RequestFormProvider(this._api, this._drafts, this._history) {
     for (final k in textFields) {
       controllers[k] = TextEditingController(text: k == 'quantity' ? '1' : '')
         ..addListener(_scheduleSave);
@@ -61,6 +62,7 @@ class RequestFormProvider extends ChangeNotifier {
 
   final ApiService _api;
   final DraftStorage _drafts;
+  final RequestHistoryStorage _history;
 
   final Map<String, TextEditingController> controllers = {};
   String productCategory = '';
@@ -215,6 +217,7 @@ class RequestFormProvider extends ChangeNotifier {
         fields: fields,
         productImage: image,
       );
+      await _history.remember(result!.requestId);
       await _drafts.clear(_draftKey);
     } on ApiException catch (err) {
       if (err.fieldErrors.isNotEmpty) errors = Map.of(err.fieldErrors);

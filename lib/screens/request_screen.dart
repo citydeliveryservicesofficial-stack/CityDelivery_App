@@ -7,6 +7,7 @@ import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/request_form_provider.dart';
+import '../providers/request_status_provider.dart';
 import '../widgets/common/brand_button.dart';
 import '../widgets/common/cards.dart';
 import '../widgets/common/reveal.dart';
@@ -961,8 +962,27 @@ class _SuccessState extends State<_Success> {
           ],
           const SizedBox(height: 36),
           BrandButton(
+            label: 'Check request status',
+            expand: true,
+            leading: LucideIcons.search,
+            onPressed: () {
+              context.read<RequestStatusProvider>().prefill(r.requestId);
+              AppNav.push(context, Routes.requestStatus);
+            },
+          ),
+          const SizedBox(height: 12),
+          BrandButton(
+            label: 'My requests',
+            expand: true,
+            outline: true,
+            leading: LucideIcons.history,
+            onPressed: () => AppNav.push(context, Routes.requestHistory),
+          ),
+          const SizedBox(height: 12),
+          BrandButton(
             label: 'Submit another request',
             expand: true,
+            outline: true,
             onPressed: widget.provider.reset,
           ),
           const SizedBox(height: 12),

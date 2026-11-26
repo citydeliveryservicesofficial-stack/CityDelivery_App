@@ -24,6 +24,8 @@ class SiteFooter extends StatelessWidget {
       const NavLink(Routes.becomeFranchise, 'Become a Franchise'),
       const NavLink(Routes.franchiseStatus, 'Franchise Status'),
       const NavLink(Routes.request, 'Request a Service'),
+      const NavLink(Routes.requestStatus, 'Request Status'),
+      const NavLink(Routes.requestHistory, 'My Requests'),
       const NavLink(Routes.prohibited, 'Prohibited Items Policy'),
       const NavLink(Routes.privacy, 'Privacy Policy'),
       const NavLink(Routes.terms, 'Terms and Conditions'),

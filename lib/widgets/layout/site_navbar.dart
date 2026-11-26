@@ -378,7 +378,70 @@ class _SiteNavbarState extends State<SiteNavbar> {
             trailing: LucideIcons.arrowRight,
             onPressed: () => _go(Routes.request),
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _menuShortcut(
+                  icon: LucideIcons.search,
+                  label: 'Status',
+                  active: widget.route == Routes.requestStatus,
+                  onTap: () => _go(Routes.requestStatus),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _menuShortcut(
+                  icon: LucideIcons.history,
+                  label: 'My Requests',
+                  active: widget.route == Routes.requestHistory,
+                  onTap: () => _go(Routes.requestHistory),
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _menuShortcut({
+    required IconData icon,
+    required String label,
+    required bool active,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 50),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: active ? AppColors.yellow : Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: active ? null : Border.all(color: Colors.white.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 17,
+              color: active ? AppColors.dark : AppColors.yellow,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: AppText.body(
+                size: 13,
+                weight: FontWeight.w800,
+                color: active ? AppColors.dark : Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

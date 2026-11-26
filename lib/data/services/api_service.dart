@@ -24,6 +24,30 @@ class ApiService {
     return ProductRequestResult.fromResponse(res);
   }
 
+  /// GET /requests/:requestId/status (public — status only)
+  Future<RequestStatusResult> checkRequestStatus(String requestId) async {
+    final res = await _client.getJson(
+      '/requests/${Uri.encodeComponent(requestId)}/status',
+    );
+    return RequestStatusResult.fromResponse(res);
+  }
+
+  Future<Map<String, RequestStatusResult>> checkRequestStatuses(List<String> requestIds) async {
+    final res = await _client.postJson('/requests/status/bulk', {
+      'requestIds': requestIds,
+    });
+    final data = res['data'] is Map
+        ? Map<String, dynamic>.from(res['data'] as Map)
+        : <String, dynamic>{};
+    final items = data['items'] is List ? data['items'] as List : const [];
+    return <String, RequestStatusResult>{
+      for (final item in items)
+        if (item is Map)
+          RequestStatusResult.fromJson(Map<String, dynamic>.from(item)).requestId:
+              RequestStatusResult.fromJson(Map<String, dynamic>.from(item)),
+    };
+  }
+
   /// POST /contact (JSON). Returns the server's confirmation message.
   Future<String> submitContactMessage(Map<String, dynamic> payload) async {
     final res = await _client.postJson('/contact', payload);
