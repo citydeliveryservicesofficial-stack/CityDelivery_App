@@ -43,8 +43,6 @@ class FranchiseConfig {
     this.refundPolicy = 'Non-refundable',
     this.refundPolicyDetails = '',
     this.paymentInstructions = '',
-    this.paymentConfigured = false,
-    this.paymentEnvironment = 'sandbox',
   });
 
   final List<String> statuses;
@@ -56,15 +54,12 @@ class FranchiseConfig {
   final String refundPolicy;
   final String refundPolicyDetails;
   final String paymentInstructions;
-  final bool paymentConfigured;
-  final String paymentEnvironment;
 
   String get feeLabel => formatFranchiseMoney(applicationFee, currency);
 
   factory FranchiseConfig.fromResponse(Map<String, dynamic> response) {
     const fallback = FranchiseConfig();
     final data = _asMap(response['data']);
-    final payment = _asMap(data['payment']);
     return FranchiseConfig(
       statuses: _strings(data['statuses'], fallback.statuses),
       investmentCapacities: _strings(
@@ -84,10 +79,6 @@ class FranchiseConfig {
           : _text(data['refundPolicy']),
       refundPolicyDetails: _text(data['refundPolicyDetails']),
       paymentInstructions: _text(data['paymentInstructions']),
-      paymentConfigured: payment['configured'] == true,
-      paymentEnvironment: _text(payment['environment']).isEmpty
-          ? fallback.paymentEnvironment
-          : _text(payment['environment']),
     );
   }
 }
@@ -129,7 +120,6 @@ class FranchisePayment {
     this.currency = 'INR',
     this.paidAt,
     this.transactionId,
-    this.orderId,
     this.lastError = '',
   });
 
@@ -138,7 +128,6 @@ class FranchisePayment {
   final String currency;
   final DateTime? paidAt;
   final String? transactionId;
-  final String? orderId;
   final String lastError;
 
   bool get isPaid => status == 'PAID';
@@ -156,8 +145,6 @@ class FranchisePayment {
       transactionId: _text(data['transactionId']).isEmpty
           ? null
           : _text(data['transactionId']),
-      orderId:
-          _text(data['orderId']).isEmpty ? null : _text(data['orderId']),
       lastError: _text(data['lastError']),
     );
   }
@@ -178,7 +165,6 @@ class FranchiseApplication {
     this.updatedAt,
     this.fee = const FranchiseFee(),
     this.payment = const FranchisePayment(),
-    this.paymentConfigured = false,
   });
 
   final String applicationId;
@@ -194,7 +180,6 @@ class FranchiseApplication {
   final DateTime? updatedAt;
   final FranchiseFee fee;
   final FranchisePayment payment;
-  final bool paymentConfigured;
 
   factory FranchiseApplication.fromMap(Map<String, dynamic> data) {
     return FranchiseApplication(
@@ -212,7 +197,6 @@ class FranchiseApplication {
       updatedAt: DateTime.tryParse(_text(data['updatedAt']))?.toLocal(),
       fee: FranchiseFee.fromMap(_asMap(data['fee'])),
       payment: FranchisePayment.fromMap(data['payment']),
-      paymentConfigured: data['paymentConfigured'] == true,
     );
   }
 }
@@ -222,14 +206,12 @@ class FranchiseApplicationResult {
     required this.applicationId,
     required this.message,
     this.duplicate = false,
-    this.paymentConfigured = false,
     this.application,
   });
 
   final String applicationId;
   final String message;
   final bool duplicate;
-  final bool paymentConfigured;
   final FranchiseApplication? application;
 
   factory FranchiseApplicationResult.fromResponse(
@@ -240,7 +222,6 @@ class FranchiseApplicationResult {
       applicationId: _text(data['applicationId']),
       message: _text(response['message']),
       duplicate: data['duplicate'] == true,
-      paymentConfigured: data['paymentConfigured'] == true,
       application: data['applicationId'] is String
           ? FranchiseApplication.fromMap(data)
           : null,
@@ -249,51 +230,14 @@ class FranchiseApplicationResult {
 }
 
 class FranchiseStatusResult {
-  const FranchiseStatusResult({
-    required this.application,
-    this.providerOrderStatus = '',
-  });
+  const FranchiseStatusResult({required this.application});
 
   final FranchiseApplication application;
-  final String providerOrderStatus;
 
   factory FranchiseStatusResult.fromResponse(Map<String, dynamic> response) {
     final data = _asMap(response['data']);
     return FranchiseStatusResult(
       application: FranchiseApplication.fromMap(data),
-      providerOrderStatus: _text(data['providerOrderStatus']),
-    );
-  }
-}
-
-class FranchisePaymentOrder {
-  const FranchisePaymentOrder({
-    required this.paymentSessionId,
-    required this.orderId,
-    required this.amount,
-    required this.currency,
-    required this.environment,
-    this.alreadyPaid = false,
-  });
-
-  final String paymentSessionId;
-  final String orderId;
-  final num amount;
-  final String currency;
-  final String environment;
-  final bool alreadyPaid;
-
-  factory FranchisePaymentOrder.fromResponse(Map<String, dynamic> response) {
-    final data = _asMap(response['data']);
-    return FranchisePaymentOrder(
-      paymentSessionId: _text(data['paymentSessionId']),
-      orderId: _text(data['orderId']),
-      amount: data['amount'] is num ? data['amount'] as num : 1000,
-      currency: _text(data['currency']).isEmpty ? 'INR' : _text(data['currency']),
-      environment: _text(data['environment']).isEmpty
-          ? 'sandbox'
-          : _text(data['environment']),
-      alreadyPaid: response['alreadyPaid'] == true,
     );
   }
 }

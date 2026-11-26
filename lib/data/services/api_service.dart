@@ -76,22 +76,4 @@ class ApiService {
     });
     return FranchiseStatusResult.fromResponse(res);
   }
-
-  Future<FranchisePaymentOrder> createFranchisePaymentOrder(
-    String applicationId,
-  ) async {
-    final res = await _client.postJson('/franchises/payment/order', {
-      'applicationId': applicationId,
-    });
-    return FranchisePaymentOrder.fromResponse(res);
-  }
-
-  Future<FranchiseStatusResult> verifyFranchisePayment(
-    String applicationId,
-  ) async {
-    final res = await _client.postJson('/franchises/payment/verify', {
-      'applicationId': applicationId,
-    });
-    return FranchiseStatusResult.fromResponse(res);
-  }
 }

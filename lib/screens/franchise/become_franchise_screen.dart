@@ -156,7 +156,7 @@ const _faq = [
   ),
   (
     'Can I pay after submitting the application?',
-    'Yes. The initial payment is optional. Save your Application ID and use the status page to pay any time that suits you. Your application stays under review.',
+    'Yes. The initial payment is optional. Save your Application ID and contact our team for the simple payment steps. Your application stays under review.',
   ),
   (
     'What happens after I apply?',
@@ -176,11 +176,11 @@ class BecomeFranchiseScreen extends StatelessWidget {
     final franchise = context.watch<FranchiseProvider>();
     final fee = franchise.config.feeLabel;
     final policy = franchise.config.refundPolicy.isEmpty
-        ? 'as shown at payment'
+        ? 'as shown in your application'
         : franchise.config.refundPolicy;
     final steps = [
       ('01', 'Apply', 'Share your details, location and operating capacity.'),
-      ('02', 'Initial payment', 'Optional: pay $fee now or later from the status page.'),
+      ('02', 'Initial payment', 'Optional: our team will share the simple payment steps after you apply.'),
       ('03', 'Review', 'Our team reviews your application and may contact you.'),
       ('04', 'Agreement', 'Approved partners move through agreement and activation.'),
     ];
@@ -446,13 +446,13 @@ class BecomeFranchiseScreen extends StatelessWidget {
                   eyebrow: 'Flexible initial payment',
                   title: 'Apply first. Pay when you are ready.',
                   description:
-                      'The initial payment is optional. Submit your application, save your Application ID and return to the status page whenever you want to complete the payment.',
+                      'The initial payment is optional. After you apply, our team will share the simple payment steps. Your Application ID is used to check your status.',
                 ),
                 const SizedBox(height: 28),
                 for (final step in [
                   'Submit your franchise application',
                   'Save the Application ID shown afterwards',
-                  'Open the status page and pay any time',
+                  'Contact us for the simple payment steps',
                 ]) ...[
                   _NumberRow(text: step),
                   const SizedBox(height: 10),
@@ -503,13 +503,13 @@ class BecomeFranchiseScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       const _PaymentRow(
                         icon: LucideIcons.clock3,
-                        title: 'Pay now or later',
-                        text: 'Your Application ID unlocks the payment option on the status page.',
+                        title: 'Pay when ready',
+                        text: 'Our team shares simple payment steps after you apply.',
                       ),
                       const _PaymentRow(
-                        icon: LucideIcons.shieldCheck,
-                        title: 'Secure payment flow',
-                        text: 'Payment is handled by the payment provider when online payment is enabled.',
+                        icon: LucideIcons.clipboardCheck,
+                        title: 'Easy tracking',
+                        text: 'Use your Application ID on the status page to check payment status.',
                       ),
                       const _PaymentRow(
                         icon: LucideIcons.checkCircle2,

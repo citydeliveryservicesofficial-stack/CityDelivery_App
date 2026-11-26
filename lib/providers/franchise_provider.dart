@@ -9,7 +9,6 @@ import '../data/models/upload_file.dart';
 import '../data/services/api_exception.dart';
 import '../data/services/api_service.dart';
 import '../data/services/draft_storage.dart';
-import '../services/franchise_payment.dart';
 
 class FranchiseProvider extends ChangeNotifier {
   FranchiseProvider(this._api, this._drafts) {
@@ -78,8 +77,6 @@ class FranchiseProvider extends ChangeNotifier {
   FranchiseStatusResult? statusResult;
   bool checkingStatus = false;
   String statusError = '';
-  bool paying = false;
-  String paymentMessage = '';
 
   String get applicationId =>
       result?.applicationId ?? statusResult?.application.applicationId ?? '';
@@ -310,51 +307,6 @@ class FranchiseProvider extends ChangeNotifier {
       checkingStatus = false;
       notifyListeners();
     }
-  }
-
-  Future<void> startPayment(String applicationId) async {
-    if (paying) return;
-    paying = true;
-    paymentMessage = '';
-    notifyListeners();
-
-    try {
-      final order = await _api.createFranchisePaymentOrder(applicationId);
-      if (order.alreadyPaid) {
-        paymentMessage = 'Initial payment has already been recorded.';
-        await checkStatus(applicationId: applicationId);
-        return;
-      }
-      if (order.paymentSessionId.isEmpty || order.orderId.isEmpty) {
-        throw StateError('A payment session was not returned. Please try again.');
-      }
-      await startFranchisePayment(
-        paymentSessionId: order.paymentSessionId,
-        orderId: order.orderId,
-        environment: order.environment,
-      );
-      statusResult = await _api.verifyFranchisePayment(applicationId);
-      paymentMessage =
-          'Payment verification was checked with the payment provider. Your latest status is shown below.';
-    } on UnsupportedError {
-      paymentMessage =
-          'Online payment is available in the mobile app. Your application remains under review.';
-    } on ApiException catch (err) {
-      paymentMessage = err.message;
-    } catch (err) {
-      final message = '$err'.trim();
-      paymentMessage = message.isEmpty
-          ? 'Could not start payment right now. Please try again.'
-          : message;
-    } finally {
-      paying = false;
-      notifyListeners();
-    }
-  }
-
-  void clearPaymentMessage() {
-    paymentMessage = '';
-    notifyListeners();
   }
 
   void resetForm() {

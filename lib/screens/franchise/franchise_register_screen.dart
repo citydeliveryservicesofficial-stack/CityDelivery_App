@@ -807,7 +807,7 @@ class _Success extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Your application starts under review. The initial payment is optional and can be completed later from the status page. Submission does not guarantee approval, an agreement, territory or income.',
+              'Your application starts under review. The initial payment is optional, and our team will share the simple payment steps after you apply. Submission does not guarantee approval, an agreement, territory or income.',
               style: AppText.body(
                 size: 15,
                 height: 1.6,
@@ -816,7 +816,7 @@ class _Success extends StatelessWidget {
             ),
             const SizedBox(height: 28),
             BrandButton(
-              label: 'Pay or check status',
+              label: 'Check status',
               expand: true,
               trailing: LucideIcons.arrowRight,
               onPressed: () {

@@ -146,38 +146,6 @@ class _FranchiseStatusScreenState extends State<FranchiseStatusScreen> {
                     ],
                   ),
                 ),
-                if (p.paymentMessage.isNotEmpty) ...[
-                  const SizedBox(height: 18),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.amber50,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          LucideIcons.info,
-                          size: 18,
-                          color: AppColors.amber900,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            p.paymentMessage,
-                            style: AppText.body(
-                              size: 14,
-                              height: 1.5,
-                              color: AppColors.amber900,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
                 if (result != null) ...[
                   const SizedBox(height: 24),
                   Reveal(dy: 20, child: _ResultCard(provider: p, result: result)),
@@ -501,7 +469,7 @@ class _PaymentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final payment = app.payment;
-    final canPay = app.paymentConfigured && !payment.isPaid;
+    final instructions = provider.config.paymentInstructions;
 
     return Container(
       width: double.infinity,
@@ -541,7 +509,7 @@ class _PaymentCard extends StatelessWidget {
               ),
               if (payment.transactionId != null)
                 _PaymentBox(
-                  label: 'Transaction',
+                  label: 'Reference',
                   value: payment.transactionId!,
                 ),
             ],
@@ -569,30 +537,20 @@ class _PaymentCard extends StatelessWidget {
             'Payment does not guarantee approval, an agreement, exclusive territory or income. Your application remains under review.',
             style: AppText.body(size: 13, height: 1.5, color: AppColors.muted),
           ),
-          if (canPay) ...[
-            const SizedBox(height: 18),
-            BrandButton(
-              label: provider.paying
-                  ? 'Opening payment…'
-                  : 'Pay ${app.fee.label} (optional)',
-              expand: true,
-              loading: provider.paying,
-              leading: LucideIcons.creditCard,
-              onPressed: provider.paying
-                  ? null
-                  : () => provider.startPayment(app.applicationId),
+          const SizedBox(height: 14),
+          Text(
+            instructions.isEmpty
+                ? 'Our team will share the simple payment steps after you apply. Save your Application ID and use this page to check payment status.'
+                : 'Payment steps:\n$instructions',
+            style: AppText.body(
+              size: 13,
+              height: 1.5,
+              weight: FontWeight.w700,
+              color:
+                  instructions.isEmpty ? AppColors.amber900 : AppColors.muted,
             ),
-          ] else if (!app.paymentConfigured) ...[
-            const SizedBox(height: 16),
-            Text(
-              'Online payment is not enabled yet. Your application remains under review.',
-              style: AppText.body(
-                size: 13,
-                weight: FontWeight.w700,
-                color: AppColors.amber900,
-              ),
-            ),
-          ] else if (payment.isPaid) ...[
+          ),
+          if (payment.isPaid) ...[
             const SizedBox(height: 16),
             Row(
               children: [
