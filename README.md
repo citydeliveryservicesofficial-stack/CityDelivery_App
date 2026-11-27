@@ -42,7 +42,7 @@ Release builds must use **https** (Android release and iOS block cleartext).
 
 Architecture: `core/` (config, constants, theme, helpers) · `data/` (models, `ApiClient`, `ApiService`, draft storage) ·
 `providers/` (Provider/ChangeNotifier: one per form) · `widgets/` (common, form, layout) · `screens/`.
-Same validation rules, error texts, `submissionKey` idempotency and empty `website` honeypot as the website.
+Same validation rules, error texts, `submissionKey` idempotency and empty `website` honeypot as the website. The request form supports multiple products/stores in one request via the `items` JSON field; all items share one delivery address and Request ID.
 
 ## Decisions you should check
 - **Admin panel not included.** It is staff-only (x-api-key / sensitive key) and not customer-facing; shipping those keys in a

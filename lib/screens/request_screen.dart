@@ -215,6 +215,28 @@ class _FormBody extends StatelessWidget {
       );
     }
 
+    Widget addButton() {
+      if (p.extraItems.length >= RequestFormProvider.maxItems - 1) {
+        return const Text(
+          'Up to 20 items in one request. All items share the same delivery address.',
+          style: TextStyle(fontSize: 12, color: AppColors.muted),
+        );
+      }
+      return OutlinedButton.icon(
+        onPressed: p.addItem,
+        icon: const Icon(LucideIcons.plus, size: 17),
+        label: const Text('Add another product / store'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.dark,
+          side: const BorderSide(color: AppColors.yellow),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(999),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        ),
+      );
+    }
+
     return Column(
       key: const ValueKey('form'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,8 +282,8 @@ class _FormBody extends StatelessWidget {
         _SectionCard(
           icon: LucideIcons.package,
           step: 2,
-          title: 'The product',
-          subtitle: 'What you want and any helpful details.',
+          title: 'Products & stores',
+          subtitle: 'Add as many products or stores as you need — one Request ID covers them all.',
           children: [
             text(
               'productName',
@@ -312,11 +334,17 @@ class _FormBody extends StatelessWidget {
               type: const TextInputType.numberWithOptions(decimal: true),
             ),
             _gap,
+            addButton(),
+            for (var i = 0; i < p.extraItems.length; i++) ...[
+              const SizedBox(height: 20),
+              _ExtraItemCard(provider: p, keys: keys, index: i),
+            ],
+            _gap,
             LabeledField(
               key: keys.key('productImage'),
-              label: 'Product image',
+              label: 'Reference image',
               optional: true,
-              hint: 'A photo helps us identify the exact item.',
+              hint: 'One photo for the whole request — a product, bill or storefront.',
               child: ImageUploadField(
                 file: p.image,
                 onChanged: p.setImage,
@@ -600,6 +628,176 @@ class _FormBody extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ExtraItemCard extends StatelessWidget {
+  const _ExtraItemCard({
+    required this.provider,
+    required this.keys,
+    required this.index,
+  });
+
+  final RequestFormProvider provider;
+  final FieldKeys keys;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final item = provider.extraItems[index];
+    final itemNumber = index + 2;
+    String err(String field) => provider.errors['items.${index + 1}.$field'] ?? '';
+
+    Widget field(
+      String id,
+      String label, {
+      bool required = false,
+      bool optional = false,
+      String? hint,
+      String? placeholder,
+      int? maxLength,
+      TextInputType? type,
+      int lines = 1,
+    }) {
+      final errorKey = 'items.${index + 1}.$id';
+      return LabeledField(
+        key: keys.key(errorKey),
+        label: label,
+        required: required,
+        optional: optional,
+        hint: hint,
+        error: err(id).isEmpty ? null : err(id),
+        child: AppTextField(
+          controller: item.controllers[id]!,
+          focusNode: keys.node(errorKey),
+          hasError: err(id).isNotEmpty,
+          hint: placeholder,
+          maxLength: maxLength,
+          keyboardType: type,
+          minLines: lines,
+          maxLines: lines == 1 ? 1 : lines + 2,
+          onChanged: (_) => provider.clearItemError(index, id),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.yellow.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.yellow.withValues(alpha: 0.35)),
+        boxShadow: AppShadows.soft,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const IconBadge(LucideIcons.store, size: 42),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Item $itemNumber',
+                      style: AppText.body(
+                        size: 16,
+                        weight: FontWeight.w800,
+                        color: AppColors.dark,
+                      ),
+                    ),
+                    Text(
+                      'Product and pickup store',
+                      style: AppText.body(size: 12, color: AppColors.muted),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: 'Remove item',
+                onPressed: () => provider.removeItem(index),
+                icon: const Icon(
+                  LucideIcons.trash2,
+                  size: 18,
+                  color: AppColors.red600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          field(
+            'productName',
+            'Product name',
+            required: true,
+            placeholder: 'e.g. Cold-pressed olive oil 1L',
+            maxLength: 120,
+          ),
+          const SizedBox(height: 20),
+          LabeledField(
+            key: keys.key('items.${index + 1}.productCategory'),
+            label: 'Product category',
+            required: true,
+            error: err('productCategory').isEmpty
+                ? null
+                : err('productCategory'),
+            child: SelectField(
+              value: item.category,
+              options: kCategories,
+              placeholder: 'Choose a category',
+              hasError: err('productCategory').isNotEmpty,
+              onChanged: (v) => provider.setItemCategory(index, v),
+            ),
+          ),
+          const SizedBox(height: 20),
+          field(
+            'productDescription',
+            'Product description',
+            optional: true,
+            hint: 'Brand, size, colour, flavour — anything that helps us find the right one.',
+            placeholder: 'Describe the product in as much detail as you can…',
+            maxLength: 1500,
+            type: TextInputType.multiline,
+            lines: 4,
+          ),
+          const SizedBox(height: 20),
+          field(
+            'quantity',
+            'Quantity',
+            required: true,
+            type: TextInputType.number,
+          ),
+          const SizedBox(height: 20),
+          field(
+            'estimatedBudget',
+            'Estimated budget',
+            optional: true,
+            hint: 'In ₹ — a rough number is fine.',
+            placeholder: 'e.g. 850',
+            type: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          const SizedBox(height: 20),
+          field(
+            'storeName',
+            'Store name',
+            optional: true,
+            placeholder: 'e.g. Fresh Mart',
+            maxLength: 120,
+          ),
+          const SizedBox(height: 20),
+          field(
+            'storeLocation',
+            'Store location',
+            optional: true,
+            hint: 'Area, street or landmark.',
+            placeholder: 'e.g. Anna Nagar, near the main roundabout',
+            maxLength: 200,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -119,12 +119,12 @@ const List<GalleryItem> kGalleryItems = [
     title: 'Documents & related info',
     text: 'Handed over with care',
     category: 'Documents',
-    description: 'Share the document or packet details, the pickup store or office, and where it needs to go. Our team reviews the request and confirms what is accepted before anything is arranged.',
+    description: 'Add one or many items from one or many stores in a single request, then share the document or packet details and one delivery address. Our team reviews every item, confirms what is accepted, and keeps everything under one Request ID.',
     highlights: [
-      'Tell us the document type and pickup location',
-      'Add clear handover instructions in your request',
+      'Add multiple products and stores to one request',
+      'Give each item its own product and pickup details',
+      'Use one delivery address and one Request ID for everything',
       'We confirm eligibility and next steps with you first',
-      'Keep your Request ID for every update',
     ],
   ),
   GalleryItem(

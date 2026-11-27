@@ -14,7 +14,7 @@ const _sections = <({String title, List<String> body})>[
   (
     title: '1. Information we collect',
     body: [
-      'When you submit a product request we collect the details you enter: your name, optional email address and mobile number; the product name, category, optional store name, store location and description, quantity and optional estimated budget; and your delivery address, city, postal code and any additional instructions. We also record whether you accepted the Prohibited Items Policy, the version accepted and the time of acceptance.',
+      'When you submit a product request we collect the details you enter: your name, optional email address and mobile number; the product name, category, optional store name, store location and description, quantity and optional estimated budget for each item you add; and one delivery address, city, postal code and any additional instructions. We also record whether you accepted the Prohibited Items Policy, the version accepted and the time of acceptance.',
       'If you choose to attach a product image, we collect that image. When you use the contact form we collect your name, email address, optional subject and your message.',
     ],
   ),
