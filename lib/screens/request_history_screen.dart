@@ -231,14 +231,10 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                 const SizedBox(height: 20),
                 WhiteCard(
                   padding: const EdgeInsets.all(16),
-                  child: Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 12,
-                    runSpacing: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           const IconBadge(
                             LucideIcons.clock3,
@@ -247,24 +243,30 @@ class _RequestHistoryScreenState extends State<RequestHistoryScreen> {
                             radius: 16,
                           ),
                           const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Live tracking dashboard',
-                                style: AppText.display(size: 16, color: AppColors.dark),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Statuses refresh from your saved Request IDs.',
-                                style: AppText.body(size: 12, color: AppColors.muted),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Live tracking dashboard',
+                                  style: AppText.display(size: 16, color: AppColors.dark),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Statuses refresh from your saved Request IDs.',
+                                  style: AppText.body(size: 12, color: AppColors.muted),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
                       Wrap(
                         spacing: 10,
+                        runSpacing: 10,
                         children: [
                           BrandButton(
                             label: p.busy ? 'Refreshing…' : 'Refresh status',

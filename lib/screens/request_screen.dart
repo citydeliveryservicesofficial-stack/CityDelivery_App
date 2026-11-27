@@ -222,17 +222,59 @@ class _FormBody extends StatelessWidget {
           style: TextStyle(fontSize: 12, color: AppColors.muted),
         );
       }
-      return OutlinedButton.icon(
-        onPressed: p.addItem,
-        icon: const Icon(LucideIcons.plus, size: 17),
-        label: const Text('Add another product / store'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.dark,
-          side: const BorderSide(color: AppColors.yellow),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(999),
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: p.addItem,
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.yellow, AppColors.yellowSoft],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.yellowDeep),
+              boxShadow: AppShadows.soft,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: const BoxDecoration(
+                    color: AppColors.dark,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    LucideIcons.plus,
+                    size: 17,
+                    color: AppColors.yellow,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    'Add another product/store',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.body(
+                      size: 12,
+                      weight: FontWeight.w800,
+                      color: AppColors.dark,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  LucideIcons.arrowRight,
+                  size: 15,
+                  color: AppColors.dark,
+                ),
+              ],
+            ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         ),
       );
     }
@@ -285,60 +327,12 @@ class _FormBody extends StatelessWidget {
           title: 'Products & stores',
           subtitle: 'Add as many products or stores as you need — one Request ID covers them all.',
           children: [
-            text(
-              'productName',
-              'Product name',
-              required: true,
-              placeholder: 'e.g. Cold-pressed olive oil 1L',
-              maxLength: 120,
-            ),
-            _gap,
-            LabeledField(
-              key: keys.key('productCategory'),
-              label: 'Product category',
-              required: true,
-              error: err('productCategory'),
-              child: SelectField(
-                value: p.productCategory,
-                options: kCategories,
-                placeholder: 'Choose a category',
-                hasError: err('productCategory') != null,
-                onChanged: p.setCategory,
-              ),
-            ),
-            _gap,
-            text(
-              'productDescription',
-              'Product description',
-              optional: true,
-              hint: 'Brand, size, colour, flavour — anything that helps us find the right one.',
-              placeholder: 'Describe the product in as much detail as you can…',
-              maxLength: 1500,
-              type: TextInputType.multiline,
-              lines: 4,
-            ),
-            _gap,
-            text(
-              'quantity',
-              'Quantity',
-              required: true,
-              type: TextInputType.number,
-            ),
-            _gap,
-            text(
-              'estimatedBudget',
-              'Estimated budget',
-              optional: true,
-              hint: 'In ₹ — a rough number is fine.',
-              placeholder: 'e.g. 850',
-              type: const TextInputType.numberWithOptions(decimal: true),
-            ),
+            for (var i = 0; i <= p.extraItems.length; i++) ...[
+              if (i > 0) const Divider(height: 40),
+              _ItemFieldsCard(provider: p, keys: keys, index: i),
+            ],
             _gap,
             addButton(),
-            for (var i = 0; i < p.extraItems.length; i++) ...[
-              const SizedBox(height: 20),
-              _ExtraItemCard(provider: p, keys: keys, index: i),
-            ],
             _gap,
             LabeledField(
               key: keys.key('productImage'),
@@ -357,59 +351,9 @@ class _FormBody extends StatelessWidget {
         _SectionCard(
           icon: LucideIcons.truck,
           step: 3,
-          title: 'Pickup & Delivery',
-          subtitle: 'Pickup point and delivery destination in one place.',
+          title: 'Delivery',
+          subtitle: 'One delivery address for every item in this request.',
           children: [
-            const _FromToStrip(),
-            const SizedBox(height: 20),
-            _TintedCard(
-              tint: AppColors.yellow,
-              icon: LucideIcons.store,
-              iconBg: AppColors.yellow,
-              iconFg: AppColors.dark,
-              heading: 'From',
-              badge: 'Pickup',
-              note: 'Where should we collect it? Optional if you are still deciding.',
-              children: [
-                text(
-                  'storeName',
-                  'Store name',
-                  optional: true,
-                  placeholder: 'e.g. Fresh Mart',
-                  maxLength: 120,
-                ),
-                _gap,
-                text(
-                  'storeLocation',
-                  'Store location',
-                  optional: true,
-                  hint: 'Area, street or landmark.',
-                  placeholder: 'e.g. Anna Nagar, near the main roundabout',
-                  maxLength: 200,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: AppShadows.soft,
-                  border: Border.all(
-                    color: AppColors.yellow.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: const Icon(
-                  LucideIcons.arrowDown,
-                  size: 18,
-                  color: AppColors.green,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
             _TintedCard(
               tint: AppColors.green,
               icon: LucideIcons.mapPin,
@@ -632,8 +576,8 @@ class _FormBody extends StatelessWidget {
   }
 }
 
-class _ExtraItemCard extends StatelessWidget {
-  const _ExtraItemCard({
+class _ItemFieldsCard extends StatelessWidget {
+  const _ItemFieldsCard({
     required this.provider,
     required this.keys,
     required this.index,
@@ -645,9 +589,31 @@ class _ExtraItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final item = provider.extraItems[index];
-    final itemNumber = index + 2;
-    String err(String field) => provider.errors['items.${index + 1}.$field'] ?? '';
+    final isPrimary = index == 0;
+    final item = isPrimary ? null : provider.extraItems[index - 1];
+    final itemNumber = index + 1;
+    String errorKey(String field) =>
+        isPrimary ? field : 'items.$index.$field';
+    String? err(String field) => provider.errors[errorKey(field)];
+    TextEditingController controller(String field) =>
+        isPrimary ? provider.controllers[field]! : item!.controllers[field]!;
+    String category() => isPrimary ? provider.productCategory : item!.category;
+
+    void clear(String field) {
+      if (isPrimary) {
+        provider.clearError(field);
+      } else {
+        provider.clearItemError(index - 1, field);
+      }
+    }
+
+    void setCategory(String value) {
+      if (isPrimary) {
+        provider.setCategory(value);
+      } else {
+        provider.setItemCategory(index - 1, value);
+      }
+    }
 
     Widget field(
       String id,
@@ -659,239 +625,141 @@ class _ExtraItemCard extends StatelessWidget {
       int? maxLength,
       TextInputType? type,
       int lines = 1,
+      Iterable<String>? autofill,
+      TextCapitalization cap = TextCapitalization.none,
     }) {
-      final errorKey = 'items.${index + 1}.$id';
+      final key = errorKey(id);
+      final error = err(id);
       return LabeledField(
-        key: keys.key(errorKey),
+        key: keys.key(key),
         label: label,
         required: required,
         optional: optional,
         hint: hint,
-        error: err(id).isEmpty ? null : err(id),
+        error: error,
         child: AppTextField(
-          controller: item.controllers[id]!,
-          focusNode: keys.node(errorKey),
-          hasError: err(id).isNotEmpty,
+          controller: controller(id),
+          focusNode: keys.node(key),
+          hasError: error != null,
           hint: placeholder,
           maxLength: maxLength,
           keyboardType: type,
           minLines: lines,
           maxLines: lines == 1 ? 1 : lines + 2,
-          onChanged: (_) => provider.clearItemError(index, id),
+          autofillHints: autofill,
+          textCapitalization: cap,
+          onChanged: (_) => clear(id),
         ),
       );
     }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.yellow.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.yellow.withValues(alpha: 0.35)),
-        boxShadow: AppShadows.soft,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const IconBadge(LucideIcons.store, size: 42),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Item $itemNumber',
-                      style: AppText.body(
-                        size: 16,
-                        weight: FontWeight.w800,
-                        color: AppColors.dark,
-                      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const IconBadge(LucideIcons.package, size: 42),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Item $itemNumber',
+                    style: AppText.body(
+                      size: 16,
+                      weight: FontWeight.w800,
+                      color: AppColors.dark,
                     ),
-                    Text(
-                      'Product and pickup store',
-                      style: AppText.body(size: 12, color: AppColors.muted),
-                    ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    'Product and pickup store',
+                    style: AppText.body(size: 12, color: AppColors.muted),
+                  ),
+                ],
               ),
+            ),
+            if (!isPrimary)
               IconButton(
                 tooltip: 'Remove item',
-                onPressed: () => provider.removeItem(index),
+                onPressed: () => provider.removeItem(index - 1),
                 icon: const Icon(
                   LucideIcons.trash2,
                   size: 18,
                   color: AppColors.red600,
                 ),
               ),
-            ],
+          ],
+        ),
+        const SizedBox(height: 20),
+        field(
+          'productName',
+          'Product name',
+          required: true,
+          placeholder: 'e.g. Cold-pressed olive oil 1L',
+          maxLength: 120,
+        ),
+        const SizedBox(height: 20),
+        LabeledField(
+          key: keys.key(errorKey('productCategory')),
+          label: 'Product category',
+          required: true,
+          error: err('productCategory'),
+          child: SelectField(
+            value: category(),
+            options: kCategories,
+            placeholder: 'Choose a category',
+            hasError: err('productCategory') != null,
+            onChanged: setCategory,
           ),
-          const SizedBox(height: 20),
-          field(
-            'productName',
-            'Product name',
-            required: true,
-            placeholder: 'e.g. Cold-pressed olive oil 1L',
-            maxLength: 120,
-          ),
-          const SizedBox(height: 20),
-          LabeledField(
-            key: keys.key('items.${index + 1}.productCategory'),
-            label: 'Product category',
-            required: true,
-            error: err('productCategory').isEmpty
-                ? null
-                : err('productCategory'),
-            child: SelectField(
-              value: item.category,
-              options: kCategories,
-              placeholder: 'Choose a category',
-              hasError: err('productCategory').isNotEmpty,
-              onChanged: (v) => provider.setItemCategory(index, v),
-            ),
-          ),
-          const SizedBox(height: 20),
-          field(
-            'productDescription',
-            'Product description',
-            optional: true,
-            hint: 'Brand, size, colour, flavour — anything that helps us find the right one.',
-            placeholder: 'Describe the product in as much detail as you can…',
-            maxLength: 1500,
-            type: TextInputType.multiline,
-            lines: 4,
-          ),
-          const SizedBox(height: 20),
-          field(
-            'quantity',
-            'Quantity',
-            required: true,
-            type: TextInputType.number,
-          ),
-          const SizedBox(height: 20),
-          field(
-            'estimatedBudget',
-            'Estimated budget',
-            optional: true,
-            hint: 'In ₹ — a rough number is fine.',
-            placeholder: 'e.g. 850',
-            type: const TextInputType.numberWithOptions(decimal: true),
-          ),
-          const SizedBox(height: 20),
-          field(
-            'storeName',
-            'Store name',
-            optional: true,
-            placeholder: 'e.g. Fresh Mart',
-            maxLength: 120,
-          ),
-          const SizedBox(height: 20),
-          field(
-            'storeLocation',
-            'Store location',
-            optional: true,
-            hint: 'Area, street or landmark.',
-            placeholder: 'e.g. Anna Nagar, near the main roundabout',
-            maxLength: 200,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 20),
+        field(
+          'productDescription',
+          'Product description',
+          optional: true,
+          hint: 'Brand, size, colour, flavour — anything that helps us find the right one.',
+          placeholder: 'Describe the product in as much detail as you can…',
+          maxLength: 1500,
+          type: TextInputType.multiline,
+          lines: 4,
+        ),
+        const SizedBox(height: 20),
+        field(
+          'quantity',
+          'Quantity',
+          required: true,
+          type: TextInputType.number,
+        ),
+        const SizedBox(height: 20),
+        field(
+          'estimatedBudget',
+          'Estimated budget',
+          optional: true,
+          hint: 'In ₹ — a rough number is fine.',
+          placeholder: 'e.g. 850',
+          type: const TextInputType.numberWithOptions(decimal: true),
+        ),
+        const SizedBox(height: 20),
+        field(
+          'storeName',
+          'Store name',
+          optional: true,
+          placeholder: 'e.g. Fresh Mart',
+          maxLength: 120,
+        ),
+        const SizedBox(height: 20),
+        field(
+          'storeLocation',
+          'Store location',
+          optional: true,
+          hint: 'Area, street or landmark.',
+          placeholder: 'e.g. Anna Nagar, near the main roundabout',
+          maxLength: 200,
+        ),
+      ],
     );
   }
-}
-
-class _FromToStrip extends StatelessWidget {
-  const _FromToStrip();
-
-  Widget _dash() => Expanded(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: CustomPaint(
-        painter: _DashLine(),
-        size: const Size(double.infinity, 2),
-      ),
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.dark,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppShadows.soft,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              color: AppColors.yellow,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              LucideIcons.store,
-              size: 16,
-              color: AppColors.dark,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'From',
-            style: AppText.body(
-              size: 14,
-              weight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          _dash(),
-          const Icon(LucideIcons.truck, size: 18, color: AppColors.yellow),
-          _dash(),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              color: AppColors.green,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              LucideIcons.mapPin,
-              size: 16,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'To',
-            style: AppText.body(
-              size: 14,
-              weight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DashLine extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..color = Colors.white.withValues(alpha: 0.25)
-      ..strokeWidth = 2;
-    for (double x = 0; x < size.width; x += 8) {
-      canvas.drawLine(Offset(x, 1), Offset(x + 4, 1), p);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
 class _TintedCard extends StatelessWidget {
